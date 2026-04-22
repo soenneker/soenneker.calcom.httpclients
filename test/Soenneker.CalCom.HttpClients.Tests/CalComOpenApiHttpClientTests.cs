@@ -1,20 +1,19 @@
 using Soenneker.CalCom.HttpClients.Abstract;
-using Soenneker.Tests.FixturedUnit;
-using Xunit;
+using Soenneker.Tests.HostedUnit;
 
 namespace Soenneker.CalCom.HttpClients.Tests;
 
-[Collection("Collection")]
-public sealed class CalComOpenApiHttpClientTests : FixturedUnitTest
+[ClassDataSource<Host>(Shared = SharedType.PerTestSession)]
+public sealed class CalComOpenApiHttpClientTests : HostedUnitTest
 {
     private readonly ICalComOpenApiHttpClient _httpclient;
 
-    public CalComOpenApiHttpClientTests(Fixture fixture, ITestOutputHelper output) : base(fixture, output)
+    public CalComOpenApiHttpClientTests(Host host) : base(host)
     {
         _httpclient = Resolve<ICalComOpenApiHttpClient>(true);
     }
 
-    [Fact]
+    [Test]
     public void Default()
     {
 
