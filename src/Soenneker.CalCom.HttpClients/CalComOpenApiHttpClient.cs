@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
@@ -11,7 +10,6 @@ using Soenneker.Utils.HttpClientCache.Abstract;
 
 namespace Soenneker.CalCom.HttpClients;
 
-///<inheritdoc cref="ICalComOpenApiHttpClient"/>
 public sealed class CalComOpenApiHttpClient : ICalComOpenApiHttpClient
 {
     private readonly IHttpClientCache _httpClientCache;
@@ -30,33 +28,19 @@ public sealed class CalComOpenApiHttpClient : ICalComOpenApiHttpClient
         return _httpClientCache.Get(nameof(CalComOpenApiHttpClient), (config: _config, baseUrl: _config["CalCom:ClientBaseUrl"] ?? _prodBaseUrl), static state =>
         {
             var apiKey = state.config.GetValueStrict<string>("CalCom:ApiKey");
-            string authHeaderName = state.config["CalCom:AuthHeaderName"] ?? "Authorization";
-            string authHeaderValueTemplate = state.config["CalCom:AuthHeaderValueTemplate"] ?? "Bearer {token}";
-            string authHeaderValue = authHeaderValueTemplate.Replace("{token}", apiKey, StringComparison.Ordinal);
-
             return new HttpClientOptions
             {
                 BaseAddress = new Uri(state.baseUrl),
-                DefaultRequestHeaders = new Dictionary<string, string>
-                {
-                    {authHeaderName, authHeaderValue},
-                }
+                DelegatingHandlerFactories = [() => new CalComApiKeyHandler(apiKey)]
             };
         }, cancellationToken);
     }
 
-    /// <summary>
-    /// Releases resources used by the current instance.
-    /// </summary>
     public void Dispose()
     {
         _httpClientCache.RemoveSync(nameof(CalComOpenApiHttpClient));
     }
 
-    /// <summary>
-    /// Asynchronously releases resources used by the current instance.
-    /// </summary>
-    /// <returns>A task that represents the asynchronous operation.</returns>
     public ValueTask DisposeAsync()
     {
         return _httpClientCache.Remove(nameof(CalComOpenApiHttpClient));
