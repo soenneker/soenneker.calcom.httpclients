@@ -10,6 +10,7 @@ using Soenneker.Utils.HttpClientCache.Abstract;
 
 namespace Soenneker.CalCom.HttpClients;
 
+/// <inheritdoc cref="ICalComOpenApiHttpClient" />
 public sealed class CalComOpenApiHttpClient : ICalComOpenApiHttpClient
 {
     private readonly IHttpClientCache _httpClientCache;
