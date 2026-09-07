@@ -22,11 +22,15 @@ internal sealed class CalComApiKeyHandler(string apiKey) : DelegatingHandler
 
     private static bool HasApiKey(string query)
     {
-        foreach (string component in query.TrimStart('?').Split('&', StringSplitOptions.RemoveEmptyEntries))
+        ReadOnlySpan<char> querySpan = query.AsSpan().TrimStart('?');
+        foreach (Range range in querySpan.Split('&'))
         {
-            string name = component.Split('=', 2)[0];
+            ReadOnlySpan<char> component = querySpan[range];
+            int equalsIndex = component.IndexOf('=');
+            ReadOnlySpan<char> name = equalsIndex < 0 ? component : component[..equalsIndex];
 
-            if (string.Equals(Uri.UnescapeDataString(name), "apiKey", StringComparison.Ordinal))
+            if (name.SequenceEqual("apiKey") ||
+                (name.Contains('%') && string.Equals(Uri.UnescapeDataString(name.ToString()), "apiKey", StringComparison.Ordinal)))
                 return true;
         }
 
