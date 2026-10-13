@@ -28,7 +28,7 @@ public sealed class CalComOpenApiHttpClient : ICalComOpenApiHttpClient
     {
         return _httpClientCache.Get(nameof(CalComOpenApiHttpClient), (config: _config, baseUrl: _config["CalCom:ClientBaseUrl"] ?? _prodBaseUrl), static state =>
         {
-            var apiKey = state.config.GetValueStrict<string>("CalCom:ApiKey");
+            var apiKey = state.config.GetStringStrict("CalCom:ApiKey");
             return new HttpClientOptions
             {
                 BaseAddress = new Uri(state.baseUrl),
